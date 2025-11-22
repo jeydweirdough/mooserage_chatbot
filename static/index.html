@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistant - CvSU</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        border: 'hsl(214.3 31.8% 91.4%)',
+                        input: 'hsl(214.3 31.8% 91.4%)',
+                        ring: 'hsl(221.2 83.2% 53.3%)',
+                        background: 'hsl(0 0% 100%)',
+                        foreground: 'hsl(222.2 84% 4.9%)',
+                        primary: {
+                            DEFAULT: 'hsl(221.2 83.2% 53.3%)',
+                            foreground: 'hsl(210 40% 98%)',
+                        },
+                        secondary: {
+                            DEFAULT: 'hsl(210 40% 96.1%)',
+                            foreground: 'hsl(222.2 47.4% 11.2%)',
+                        },
+                        muted: {
+                            DEFAULT: 'hsl(210 40% 96.1%)',
+                            foreground: 'hsl(215.4 16.3% 46.9%)',
+                        },
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        * { font-family: 'Inter', sans-serif; }
+
+        /* Dark mode colors */
+        .dark {
+            --background: 222.2 84% 4.9%;
+            --foreground: 210 40% 98%;
+            --muted: 217.2 32.6% 17.5%;
+            --muted-foreground: 215 20.2% 65.1%;
+            --border: 217.2 32.6% 17.5%;
+            --input: 217.2 32.6% 17.5%;
+            --primary: 221.2 83.2% 53.3%;
+            --primary-foreground: 210 40% 98%;
+            --secondary: 217.2 32.6% 17.5%;
+            --secondary-foreground: 210 40% 98%;
+        }
+
+        .dark {
+            background: hsl(var(--background));
+            color: hsl(var(--foreground));
+        }
+
+        .dark .bg-background { background: hsl(var(--background)); }
+        .dark .bg-secondary { background: hsl(222.2 84% 8%); }
+        .dark .bg-muted { background: hsl(var(--muted)); }
+        .dark .text-foreground { color: hsl(var(--foreground)); }
+        .dark .text-muted-foreground { color: hsl(var(--muted-foreground)); }
+        .dark .border-border { border-color: hsl(var(--border)); }
+
+        .message-enter {
+            animation: slideIn 0.2s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .typing-dot {
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: hsl(215.4 16.3% 46.9% / 0.4); border-radius: 3px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: hsl(215.4 16.3% 46.9% / 0.6); }
+
+        .pulse-dot {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Recording animation */
+        @keyframes recording {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+        }
+
+        .recording {
+            animation: recording 1s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="bg-secondary antialiased transition-colors duration-300">
+    
+    <div class="flex min-h-screen items-center justify-center p-4">
+        <div class="flex h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-lg border border-border bg-background shadow-sm transition-colors duration-300">
+            
+            <!-- Header -->
+            <div class="flex items-center justify-between border-b border-border bg-background px-6 py-4">
+                <div class="flex items-center gap-3">
+                    <div class="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-border bg-background">
+                        <svg class="h-5 w-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                        <span class="absolute -bottom-0.5 -right-0.5 flex h-2.5 w-2.5 items-center justify-center rounded-full bg-green-500 ring-2 ring-background"></span>
+                    </div>
+                    <div>
+                        <h1 class="text-sm font-semibold text-foreground">AI Assistant</h1>
+                        <p class="text-xs text-muted-foreground">Powered by Groq • Llama 3.3 70B</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <!-- Theme Toggle -->
+                    <button id="themeToggle" class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border bg-background hover:bg-muted transition-colors" title="Toggle theme">
+                        <svg id="sunIcon" class="h-4 w-4 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                        <svg id="moonIcon" class="hidden h-4 w-4 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                        </svg>
+                    </button>
+                    <!-- History Button -->
+                    <button id="historyBtn" class="inline-flex h-9 items-center gap-1.5 rounded-md border border-border bg-background px-3 hover:bg-muted transition-colors text-xs font-medium" title="View history">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        History
+                    </button>
+                    <!-- Online Badge -->
+                    <div class="inline-flex items-center gap-1.5 rounded-md border border-border bg-secondary px-2.5 py-1 text-xs font-medium">
+                        <span class="pulse-dot flex h-1.5 w-1.5 rounded-full bg-green-500"></span>
+                        <span class="text-secondary-foreground">Online</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages Area -->
+            <div id="chatMessages" class="custom-scroll flex-1 space-y-4 overflow-y-auto p-4">
+                <div class="flex items-start gap-3 message-enter">
+                    <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-border bg-background">
+                        <svg class="h-4 w-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                    </div>
+                    <div class="flex max-w-[85%] flex-col gap-1.5">
+                        <div class="rounded-lg border border-border bg-muted px-3 py-2 text-sm text-foreground">
+                            Hello! Welcome to our conversation. I'm here to help you with any questions or concerns you may have as a CvSU student. Try using the microphone button for voice input or toggle dark mode!
+                        </div>
+                        <span class="ml-1 text-xs text-muted-foreground" id="welcomeTime"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Typing Indicator -->
+            <div id="typingIndicator" class="hidden space-y-4 px-4 pb-2">
+                <div class="flex items-start gap-3">
+                    <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-border bg-background">
+                        <svg class="h-4 w-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                    </div>
+                    <div class="flex items-center gap-1 rounded-lg border border-border bg-muted px-3 py-2">
+                        <div class="typing-dot h-1.5 w-1.5 rounded-full bg-muted-foreground"></div>
+                        <div class="typing-dot h-1.5 w-1.5 rounded-full bg-muted-foreground"></div>
+                        <div class="typing-dot h-1.5 w-1.5 rounded-full bg-muted-foreground"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="border-t border-border bg-background p-4">
+                <form id="chatForm" class="flex gap-2" onsubmit="event.preventDefault(); sendMessage();">
+                    <!-- Voice Input Button -->
+                    <button 
+                        type="button"
+                        id="voiceBtn"
+                        class="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-background hover:bg-muted transition-colors"
+                        title="Voice input"
+                    >
+                        <svg id="micIcon" class="h-4 w-4 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+                        </svg>
+                    </button>
+                    <input 
+                        type="text" 
+                        id="userInput" 
+                        placeholder="Type your message here..."
+                        class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        autocomplete="off"
+                    />
+                    <!-- Streaming Toggle -->
+                    <button 
+                        type="button"
+                        id="streamToggle"
+                        class="inline-flex h-10 items-center gap-1.5 rounded-md border border-border bg-background px-3 transition-colors text-xs font-medium"
+                        title="Toggle streaming"
+                    >
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                        <span id="streamText">Stream</span>
+                    </button>
+                    <button 
+                        type="submit"
+                        id="sendBtn"
+                        class="inline-flex h-10 items-center justify-center gap-2 whitespace-nowrap rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground ring-offset-background transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+                    >
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                        </svg>
+                        Send
+                    </button>
+                </form>
+                <p class="mt-2 text-center text-xs text-muted-foreground">
+                    <strong>CvSU Intelligent Systems</strong> • Bonus Features: Streaming, History, Dark Mode, Voice Input
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chatMessages = document.getElementById('chatMessages');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const typingIndicator = document.getElementById('typingIndicator');
+        const themeToggle = document.getElementById('themeToggle');
+        const sunIcon = document.getElementById('sunIcon');
+        const moonIcon = document.getElementById('moonIcon');
+        const voiceBtn = document.getElementById('voiceBtn');
+        const micIcon = document.getElementById('micIcon');
+        const streamToggle = document.getElementById('streamToggle');
+        const streamText = document.getElementById('streamText');
+        const historyBtn = document.getElementById('historyBtn');
+
+        let isStreaming = true;
+        let recognition = null;
+        let isRecording = false;
+
+        // Initialize
+        document.getElementById('welcomeTime').textContent = getCurrentTime();
+        userInput.focus();
+        loadTheme();
+        initSpeechRecognition();
+
+        // Theme Management
+        function loadTheme() {
+            const theme = localStorage.getItem('theme') || 'light';
+            document.documentElement.classList.toggle('dark', theme === 'dark');
+            updateThemeIcons(theme);
+        }
+
+        function updateThemeIcons(theme) {
+            if (theme === 'dark') {
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            } else {
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            }
+        }
+
+        themeToggle.addEventListener('click', () => {
+            const isDark = document.documentElement.classList.toggle('dark');
+            const theme = isDark ? 'dark' : 'light';
+            localStorage.setItem('theme', theme);
+            updateThemeIcons(theme);
+        });
+
+        // Stream Toggle
+        streamToggle.addEventListener('click', () => {
+            isStreaming = !isStreaming;
+            streamText.textContent = isStreaming ? 'Stream' : 'Normal';
+            streamToggle.classList.toggle('bg-primary', isStreaming);
+            streamToggle.classList.toggle('text-primary-foreground', isStreaming);
+        });
+
+        // Speech Recognition
+        function initSpeechRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.lang = 'en-US';
+
+                recognition.onstart = () => {
+                    isRecording = true;
+                    micIcon.classList.add('recording', 'text-red-500');
+                };
+
+                recognition.onresult = (event) => {
+                    const transcript = event.results[0][0].transcript;
+                    userInput.value = transcript;
+                };
+
+                recognition.onend = () => {
+                    isRecording = false;
+                    micIcon.classList.remove('recording', 'text-red-500');
+                };
+
+                recognition.onerror = (event) => {
+                    console.error('Speech recognition error:', event.error);
+                    isRecording = false;
+                    micIcon.classList.remove('recording', 'text-red-500');
+                };
+            } else {
+                voiceBtn.disabled = true;
+                voiceBtn.title = 'Speech recognition not supported';
+            }
+        }
+
+        voiceBtn.addEventListener('click', () => {
+            if (!recognition) return;
+            
+            if (isRecording) {
+                recognition.stop();
+            } else {
+                recognition.start();
+            }
+        });
+
+        // History Management
+        historyBtn.addEventListener('click', async () => {
+            try {
+                const response = await fetch('http://127.0.0.1:5000/history');
+                const data = await response.json();
+                
+                if (data.success && data.history.length > 0) {
+                    alert(`Conversation History (${data.history.length} messages)\n\nLast conversation:\nUser: ${data.history[data.history.length - 1].user}\nAI: ${data.history[data.history.length - 1].ai.substring(0, 100)}...`);
+                } else {
+                    alert('No conversation history yet.');
+                }
+            } catch (error) {
+                console.error('Error loading history:', error);
+            }
+        });
+
+        function getCurrentTime() {
+            const now = new Date();
+            return now.toLocaleTimeString('en-US', { 
+                hour: 'numeric', 
+                minute: '2-digit',
+                hour12: true 
+            });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML.replace(/\n/g, '<br>');
+        }
+
+        function addMessage(content, isUser, isStreaming = false) {
+            const messageDiv = document.createElement('div');
+            const time = getCurrentTime();
+            
+            if (isUser) {
+                messageDiv.className = 'flex items-start justify-end gap-3 message-enter';
+                messageDiv.innerHTML = `
+                    <div class="flex max-w-[85%] flex-col items-end gap-1.5">
+                        <div class="rounded-lg bg-primary px-3 py-2 text-sm text-primary-foreground">
+                            ${escapeHtml(content)}
+                        </div>
+                        <span class="mr-1 text-xs text-muted-foreground">${time}</span>
+                    </div>
+                    <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-border bg-background">
+                        <svg class="h-4 w-4 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                    </div>
+                `;
+            } else {
+                messageDiv.className = 'flex items-start gap-3 message-enter';
+                messageDiv.innerHTML = `
+                    <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-border bg-background">
+                        <svg class="h-4 w-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                    </div>
+                    <div class="flex max-w-[85%] flex-col gap-1.5">
+                        <div class="message-content rounded-lg border border-border bg-muted px-3 py-2 text-sm text-foreground">
+                            ${isStreaming ? '' : escapeHtml(content)}
+                        </div>
+                        <span class="ml-1 text-xs text-muted-foreground">${time}</span>
+                    </div>
+                `;
+            }
+            
+            chatMessages.appendChild(messageDiv);
+            scrollToBottom();
+            return messageDiv;
+        }
+
+        function scrollToBottom() {
+            chatMessages.scrollTo({
+                top: chatMessages.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
+
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
+            
+            addMessage(message, true);
+            userInput.value = '';
+            userInput.disabled = true;
+            sendBtn.disabled = true;
+            voiceBtn.disabled = true;
+            
+            if (isStreaming) {
+                await sendStreamingMessage(message);
+            } else {
+                await sendNormalMessage(message);
+            }
+            
+            userInput.disabled = false;
+            sendBtn.disabled = false;
+            voiceBtn.disabled = false;
+            userInput.focus();
+        }
+
+        async function sendNormalMessage(message) {
+            typingIndicator.classList.remove('hidden');
+            scrollToBottom();
+            
+            try {
+                const response = await fetch('http://127.0.0.1:5000/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message })
+                });
+                
+                const data = await response.json();
+                typingIndicator.classList.add('hidden');
+                
+                if (data.success) {
+                    addMessage(data.response, false);
+                } else {
+                    addMessage('⚠️ Sorry, there was an error. Please try again.', false);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                typingIndicator.classList.add('hidden');
+                addMessage('❌ Could not connect to server.', false);
+            }
+        }
+
+        async function sendStreamingMessage(message) {
+            const messageDiv = addMessage('', false, true);
+            const contentEl = messageDiv.querySelector('.message-content');
+            let fullText = '';
+            
+            try {
+                const response = await fetch('http://127.0.0.1:5000/chat/stream', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message })
+                });
+                
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) break;
+                    
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split('\n');
+                    
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            const data = JSON.parse(line.slice(6));
+                            if (data.content) {
+                                fullText += data.content;
+                                contentEl.innerHTML = escapeHtml(fullText);
+                                scrollToBottom();
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                contentEl.textContent = '❌ Streaming error occurred.';
+            }
+        }
+
+        userInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
