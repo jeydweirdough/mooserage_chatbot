@@ -83,7 +83,6 @@ def get_session_details(session_id):
         return jsonify({'session': session, 'success': True})
     return jsonify({'error': 'Session not found', 'success': False}), 404
 
-# --- NEW: RENAME SESSION ---
 @app.route('/sessions/<session_id>/rename', methods=['PUT'])
 def rename_session(session_id):
     try:
@@ -102,7 +101,6 @@ def rename_session(session_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# --- NEW: DELETE SESSION ---
 @app.route('/sessions/<session_id>', methods=['DELETE'])
 def delete_session(session_id):
     try:
@@ -137,7 +135,10 @@ def chat_stream():
             session_id = current_session['id']
             is_new_session = True
         
-        messages_payload = [{"role": "system", "content": "You are a helpful assistant for CvSU students."}]
+        # UPDATED PERSONA: Mooserage Chatbot Assistant
+        system_prompt = "You are 'Mooserage Chatbot Assistant', a friendly, professional, and helpful AI assistant for the general public. You are capable of assisting with a wide variety of tasks including writing, general knowledge, planning, and problem-solving. Your responses are clear, polite, and accessible to everyone."
+        
+        messages_payload = [{"role": "system", "content": system_prompt}]
         for msg in current_session['messages'][-10:]:
             messages_payload.append({"role": "user", "content": msg['user']})
             messages_payload.append({"role": "assistant", "content": msg['ai']})
@@ -186,5 +187,5 @@ def chat_stream():
         return jsonify({'error': str(e), 'success': False}), 500
 
 if __name__ == '__main__':
-    print("🚀 CvSU AI Chatbot Running on http://127.0.0.1:5000")
+    print("🚀 Mooserage Chatbot Assistant Running on http://127.0.0.1:5000")
     app.run(debug=True, host='127.0.0.1', port=5000)

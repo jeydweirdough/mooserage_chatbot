@@ -1,3 +1,17 @@
 {
-  "sessions": []
+  "sessions": [
+    {
+      "id": "7964807e-0022-414d-ab19-2ed54ff4a941",
+      "title": "Help me draft a professional e...",
+      "created_at": "2025-11-22T23:56:15.470565",
+      "last_updated": "2025-11-22T23:56:16.324143",
+      "messages": [
+        {
+          "timestamp": "2025-11-22T23:56:16.324133",
+          "user": "Help me draft a professional email",
+          "ai": "I'd be happy to help you draft a professional email. To get started, could you please provide some details about the email you want to send? This will help me better understand your needs and create a more effective email. Please provide the following information:\n\n1. **Purpose of the email**: What is the main reason you're sending the email? (e.g., introduction, request, confirmation, complaint, etc.)\n2. **Recipient**: Who is the email addressed to? (e.g., colleague, manager, client, vendor, etc.)\n3. **Key points**: What are the main points you want to convey in the email?\n4. **Tone**: What tone do you want to convey in the email? (e.g., formal, friendly, apologetic, etc.)\n5. **Any specific requirements**: Are there any specific requirements or attachments you need to include in the email?\n\nOnce I have this information, I'll help you craft a well-structured and professional email that effectively communicates your message."
+        }
+      ]
+    }
+  ]
 }
