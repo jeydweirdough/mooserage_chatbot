@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mooserage - Verification</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #FFF8E7;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            -webkit-font-smoothing: antialiased;
+        }
+        .login-card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 8px 40px rgba(232,134,42,0.12);
+            border: 1px solid #E8DCC8;
+            text-align: center;
+            animation: slideUp 0.5s ease;
+        }
+        .logo {
+            width: 64px; height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #E8862A, #F5C518);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 20px;
+            box-shadow: 0 8px 24px rgba(232,134,42,0.25);
+        }
+        .logo svg { color: #fff; }
+        h1 {
+            font-size: 22px; font-weight: 700;
+            background: linear-gradient(135deg, #E8862A, #F5C518);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 6px;
+        }
+        .subtitle { font-size: 13px; color: #8A8278; margin-bottom: 28px; line-height: 1.5; }
+
+        /* Steps */
+        .step { display: none; }
+        .step.active { display: block; animation: fadeIn 0.3s ease; }
+
+        .btn-primary {
+            width: 100%; padding: 14px;
+            background: linear-gradient(135deg, #E8862A, #F09B4A);
+            color: #fff; border: none; border-radius: 12px;
+            font-size: 15px; font-weight: 600; cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(232,134,42,0.3);
+            font-family: 'Inter', sans-serif;
+        }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(232,134,42,0.35); }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        .btn-secondary {
+            background: transparent; border: 1px solid #E8DCC8;
+            color: #8A8278; padding: 10px 16px; border-radius: 10px;
+            font-size: 12px; cursor: pointer; margin-top: 12px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.15s;
+        }
+        .btn-secondary:hover { border-color: #E8862A; color: #E8862A; }
+
+        .email-display {
+            background: #FFF8E7;
+            border: 1px solid #E8DCC8;
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 14px;
+            color: #2D2A26;
+            margin-bottom: 20px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .email-display svg { color: #E8862A; flex-shrink: 0; }
+
+        .code-input-group {
+            display: flex; gap: 8px; justify-content: center;
+            margin-bottom: 20px;
+        }
+        .code-digit {
+            width: 48px; height: 56px;
+            border: 2px solid #E8DCC8;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 22px; font-weight: 700;
+            color: #2D2A26;
+            outline: none;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .code-digit:focus {
+            border-color: #E8862A;
+            box-shadow: 0 0 0 3px rgba(232,134,42,0.15);
+        }
+
+        .error-msg {
+            color: #DC2626;
+            font-size: 12px;
+            margin-top: 12px;
+            min-height: 18px;
+        }
+        .success-msg {
+            color: #16a34a;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 18px; height: 18px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+
+        .shield-icon {
+            display: flex; align-items: center; justify-content: center;
+            width: 40px; height: 40px;
+            background: rgba(232,134,42,0.1);
+            border-radius: 50%;
+            margin: 0 auto 12px;
+        }
+
+        .footer-text {
+            font-size: 11px;
+            color: #8A8278;
+            margin-top: 24px;
+            line-height: 1.5;
+        }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="logo">
+            <svg width="32" height="32" fill="none" stroke="white" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+        </div>
+        <h1>Mooserage Chatbot</h1>
+        <p class="subtitle">Secure access with email verification</p>
+
+        <!-- Step 1: Send Code -->
+        <div class="step active" id="step1">
+            <div class="shield-icon">
+                <svg width="20" height="20" fill="none" stroke="#E8862A" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            </div>
+            <p style="font-size:13px;color:#8A8278;margin-bottom:20px;">A 6-digit verification code will be sent to your registered email address.</p>
+            <button class="btn-primary" id="sendCodeBtn" onclick="sendCode()">Send Verification Code</button>
+            <div class="error-msg" id="step1Error"></div>
+        </div>
+
+        <!-- Step 2: Enter Code -->
+        <div class="step" id="step2">
+            <div class="email-display" id="emailDisplay">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                <span id="maskedEmail">***</span>
+            </div>
+            <p style="font-size:13px;color:#8A8278;margin-bottom:16px;">Enter the 6-digit code sent to your email</p>
+            <div class="code-input-group" id="codeInputs">
+                <input type="text" class="code-digit" maxlength="1" inputmode="numeric" autocomplete="off">
+                <input type="text" class="code-digit" maxlength="1" inputmode="numeric" autocomplete="off">
+                <input type="text" class="code-digit" maxlength="1" inputmode="numeric" autocomplete="off">
+                <input type="text" class="code-digit" maxlength="1" inputmode="numeric" autocomplete="off">
+                <input type="text" class="code-digit" maxlength="1" inputmode="numeric" autocomplete="off">
+                <input type="text" class="code-digit" maxlength="1" inputmode="numeric" autocomplete="off">
+            </div>
+            <button class="btn-primary" id="verifyBtn" onclick="verifyCode()">Verify & Access</button>
+            <div class="error-msg" id="step2Error"></div>
+            <button class="btn-secondary" onclick="sendCode()">Resend Code</button>
+        </div>
+
+        <p class="footer-text">Only the account owner can access this chatbot.<br>Unauthorized access is prohibited.</p>
+    </div>
+
+    <script>
+        const digits = document.querySelectorAll('.code-digit');
+
+        // Auto-focus next input, handle backspace
+        digits.forEach((input, i) => {
+            input.addEventListener('input', (e) => {
+                const val = e.target.value.replace(/\D/g, '');
+                e.target.value = val;
+                if (val && i < 5) digits[i + 1].focus();
+            });
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !e.target.value && i > 0) {
+                    digits[i - 1].focus();
+                    digits[i - 1].value = '';
+                }
+                if (e.key === 'Enter') verifyCode();
+            });
+            // Handle paste
+            input.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const pasted = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6);
+                pasted.split('').forEach((ch, j) => {
+                    if (digits[j]) digits[j].value = ch;
+                });
+                if (pasted.length === 6) verifyCode();
+                else digits[Math.min(pasted.length, 5)].focus();
+            });
+        });
+
+        async function sendCode() {
+            const btn = document.getElementById('sendCodeBtn');
+            const err = document.getElementById('step1Error');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading-spinner"></span> Sending...';
+            err.textContent = '';
+
+            try {
+                const res = await fetch('/auth/send-code', { method: 'POST' });
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('maskedEmail').textContent = data.email;
+                    document.getElementById('step1').classList.remove('active');
+                    document.getElementById('step2').classList.add('active');
+                    digits[0].focus();
+                } else {
+                    err.textContent = data.error || 'Failed to send code';
+                }
+            } catch (e) {
+                err.textContent = 'Network error. Is the server running?';
+            }
+            btn.disabled = false;
+            btn.innerHTML = 'Send Verification Code';
+        }
+
+        async function verifyCode() {
+            const code = Array.from(digits).map(d => d.value).join('');
+            if (code.length !== 6) {
+                document.getElementById('step2Error').textContent = 'Please enter all 6 digits';
+                return;
+            }
+
+            const btn = document.getElementById('verifyBtn');
+            const err = document.getElementById('step2Error');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading-spinner"></span> Verifying...';
+            err.textContent = '';
+
+            try {
+                const res = await fetch('/auth/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    btn.innerHTML = 'Access Granted!';
+                    btn.style.background = 'linear-gradient(135deg, #16a34a, #22c55e)';
+                    setTimeout(() => window.location.href = '/', 500);
+                } else {
+                    err.textContent = data.error || 'Invalid code';
+                    digits.forEach(d => d.value = '');
+                    digits[0].focus();
+                }
+            } catch (e) {
+                err.textContent = 'Verification failed. Try again.';
+            }
+            btn.disabled = false;
+            if (!btn.innerHTML.includes('Granted')) {
+                btn.innerHTML = 'Verify & Access';
+                btn.style.background = '';
+            }
+        }
+    </script>
+</body>
+</html>
