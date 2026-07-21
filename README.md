@@ -187,6 +187,8 @@ The app monitors Supabase database usage against the free tier limit (500 MB):
 
 ## License
 
+This project was developed as part of an academic requirement and is intended for educational and portfolio purposes only.
+
 Copyright © 2026 Jade Madigal. All rights reserved.
 
-This project is provided for viewing and educational purposes only. No part of this project may be copied, modified, distributed, or used without prior written permission from the author.
+The source code may not be copied, modified, redistributed, or used in other academic or commercial projects without the author's prior written permission.
